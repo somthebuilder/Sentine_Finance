@@ -141,7 +141,18 @@ export function parseCsvToStockInputs(csv: string): StockInput[] {
     const sector = (get("sector") ?? get("subSector") ?? "Unknown").toString().trim() || "Unknown";
     const subSector = (get("subSector") ?? get("sector") ?? "").toString().trim();
     const revenueProxy = get("revenueGrowth") ?? get("netProfitYoYGrowth") ?? get("roe");
-    const instProxy = get("institutionalOwnership") ?? get("piotroski");
+    const piotroskiRaw = get("piotroski");
+    const piotroskiNum = piotroskiRaw === undefined ? NaN : Number((piotroskiRaw as string).toString().replace(/,/g, "").trim());
+    const institutionalRaw = get("institutionalOwnership");
+    const institutionalFromPiotroski =
+      idx["institutionalOwnership"] !== undefined &&
+      idx["piotroski"] !== undefined &&
+      idx["institutionalOwnership"] === idx["piotroski"];
+    const instProxy =
+      (institutionalFromPiotroski && Number.isFinite(piotroskiNum) && piotroskiNum > 0
+        ? (piotroskiNum / 9).toFixed(6)
+        : institutionalRaw) ??
+      (Number.isFinite(piotroskiNum) && piotroskiNum > 0 ? (piotroskiNum / 9).toFixed(6) : undefined);
     const momentumProxy = get("momentumScore") ?? get("revenueGrowth") ?? get("netProfitYoYGrowth");
 
     out.push({

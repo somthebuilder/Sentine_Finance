@@ -117,7 +117,12 @@ app.get(
     const dynamicThemes = macroThemesToThemeModels(macroThemes);
     const themes = dynamicThemes.length ? dynamicThemes : getBaseThemes();
 
-    const themesRanked = await rankStocksByTheme(themes, stocks);
+    let themesRanked = await rankStocksByTheme(themes, stocks);
+    if (!themesRanked.length) {
+      // Safety fallback: if dynamic mapping is too sparse for current stock universe,
+      // use base themes so UI never returns a blank recommendation payload.
+      themesRanked = await rankStocksByTheme(getBaseThemes(), stocks);
+    }
     res.json({ themes: themesRanked });
   })
 );

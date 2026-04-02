@@ -12,6 +12,16 @@ This project is built for investors and builders who want a transparent, explain
 - quant-style scoring
 - AI-assisted keyword/reason enrichment (optional)
 
+## Product Preview
+
+### Themes Dashboard
+
+![Sentinel macro themes dashboard](docs/images/sentinel-themes.png)
+
+### Recommendations + Stock Ingestion
+
+![Sentinel recommendations and stock ingestion workflow](docs/images/sentinel-recommendations.png)
+
 ## Why Sentinel
 
 Most retail screeners either:
