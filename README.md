@@ -123,7 +123,7 @@ Each stock row supports fields like:
 - `symbol`
 - `exchange`
 - `sector`
-- `subSector`
+- `Industry`
 - `tags`
 - `revenueGrowth`
 - `previousRevenueGrowth`
