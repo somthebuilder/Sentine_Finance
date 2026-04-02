@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentinel</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="headerRow">
+        <img class="logo" src="assets/logo.svg" alt="Sentinel logo" />
+        <div class="brandText">
+          <div class="title">Sentinel</div>
+          <div class="subtitle">Deterministic themes & stock scoring (India-focused)</div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <section>
+          <h2>Themes</h2>
+          <div id="trendsStatus" class="status">Loading themes...</div>
+          <div id="trendsList" class="cards"></div>
+        </section>
+
+        <section>
+          <h2>Recommendations</h2>
+          <div id="recsStatus" class="status">Loading recommendations...</div>
+          <div id="recsList" class="cards"></div>
+        </section>
+
+        <section>
+          <h2>Add stocks</h2>
+          <div class="hint">Paste JSON, CSV (comma), or direct Excel table paste (tab-separated). Submit to recompute rankings.</div>
+          <div class="matchInfo">
+            Filtering is deterministic: a theme qualifies when your stock's <b>sector/subSector</b> aligns with theme sectors and your <b>tags</b> overlap the theme keywords; and the overall theme relevance must be <b>&gt; 0.5</b>.
+          </div>
+          <textarea
+            id="stocksInput"
+            class="textarea"
+            placeholder='JSON example: [{"name":"L&T","symbol":"LT","exchange":"NSE","sector":"Capital Goods","subSector":"Infrastructure","tags":["capex","infrastructure"],"revenueGrowth":0.18,"previousRevenueGrowth":0.12,"peRatio":28,"institutionalOwnership":0.55,"momentumScore":0.72}]&#10;&#10;CSV/Excel header required: name,symbol,exchange,sector,subSector,tags,revenueGrowth,previousRevenueGrowth,peRatio,institutionalOwnership,momentumScore&#10;L&T,LT,NSE,Capital Goods,Infrastructure,capex;infrastructure,0.18,0.12,28,0.55,0.72&#10;&#10;Excel paste tip: copy rows including header from Excel and paste directly here.'
+          ></textarea>
+          <div class="uploadRow">
+            <input id="stocksFile" class="fileInput" type="file" accept=".csv,.txt,.tsv" />
+            <button id="loadCsvFile" class="button secondaryButton" type="button">Load CSV/TSV File</button>
+          </div>
+          <button id="submitStocks" class="button" type="button">Submit</button>
+          <div id="stocksStatus" class="status"></div>
+        </section>
+      </div>
+    </main>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
+

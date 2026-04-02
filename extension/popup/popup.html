@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal Finance</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <div class="title">Personal Finance</div>
+      <div class="subtitle">Trends & recommendations</div>
+    </header>
+
+    <main>
+      <section>
+        <h2>Trends</h2>
+        <div id="trendsStatus" class="status">Loading trends...</div>
+        <ul id="trendsList" class="list"></ul>
+      </section>
+
+      <section>
+        <h2>Recommendations</h2>
+        <div id="recsStatus" class="status">Loading recommendations...</div>
+        <ul id="recsList" class="list"></ul>
+      </section>
+
+      <section>
+        <h2>Add stocks</h2>
+        <div class="hint">
+          Paste JSON (array of stocks) or CSV (header + rows). Click submit to update rankings.
+        </div>
+        <textarea
+          id="stocksInput"
+          class="textarea"
+          placeholder='JSON example: [{"name":"NVDA","sector":"Semiconductors","subSector":"AI Chips","tags":["ai","semiconductor"],"revenueGrowth":0.2,"peRatio":35,"institutionalOwnership":0.6,"momentumScore":0.7}]&#10;&#10;CSV example (header required): name,sector,subSector,tags,revenueGrowth,peRatio,institutionalOwnership,momentumScore&#10;NVDA,Semiconductors,AI Chips,ai;semiconductor,0.2,35,0.6,0.7'
+        ></textarea>
+        <button id="submitStocks" class="button" type="button">Submit</button>
+        <div id="stocksStatus" class="status"></div>
+      </section>
+    </main>
+
+    <script src="popup.js" defer></script>
+  </body>
+</html>
+

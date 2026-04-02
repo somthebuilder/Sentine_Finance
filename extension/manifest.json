@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Personal Finance Trends",
+  "version": "0.1.0",
+  "description": "Shows macro trends and stock recommendations.",
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "host_permissions": ["http://localhost:3000/*"]
+}
+
