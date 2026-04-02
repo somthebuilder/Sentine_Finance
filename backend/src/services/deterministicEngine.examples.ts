@@ -16,6 +16,21 @@ const stock: Stock = {
   peRatio: 35,
   institutionalOwnership: 0.6,
   momentumScore: 0.7,
+  netProfitYoYGrowth: 0.22,
+  ltDebtToEquity: 0.2,
+  piotroski: 8,
+  distanceFromHigh: 0.15,
+  revenueGrowthQoQ: 0.12,
+  epsGrowth: 0.22,
+  roe: 0.24,
+  roce: 0.2,
+  altmanZ: 3.1,
+  debtToEquity: 0.2,
+  peg: 1.2,
+  pbv: 4,
+  industryPbv: 5,
+  institutionalActivity: 0.6,
+  promoterHolding: 0.55,
 };
 
 const theme: Theme = {

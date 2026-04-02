@@ -65,7 +65,6 @@ export async function enrichTagsIfNeeded(stock: Stock): Promise<string[]> {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         model,
-        temperature: 0,
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -75,7 +74,8 @@ export async function enrichTagsIfNeeded(stock: Stock): Promise<string[]> {
     const merged = normalizeTags([...stock.tags, ...tags]);
     tagCache.set(key, merged);
     return merged;
-  } catch {
+  } catch (err) {
+    console.warn("OpenAI tag enrichment failed, using deterministic tags:", err);
     return stock.tags;
   }
 }
@@ -104,14 +104,15 @@ export async function polishReasonsIfNeeded(reasons: string[], rank: number): Pr
     const res = await fetch(`${baseUrl!.replace(/\/$/, "")}/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model, temperature: 0, messages: [{ role: "user", content: prompt }] }),
+      body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }] }),
     });
     const json = await res.json().catch(() => null);
     const content: string = json?.choices?.[0]?.message?.content ?? "";
     const parsed = JSON.parse(content);
     if (!Array.isArray(parsed)) return reasons;
     return parsed.map((x) => String(x)).filter(Boolean).slice(0, 3);
-  } catch {
+  } catch (err) {
+    console.warn("OpenAI reason polish failed, using deterministic reasons:", err);
     return reasons;
   }
 }

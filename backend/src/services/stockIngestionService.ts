@@ -13,6 +13,21 @@ export type StockInput = {
   peRatio?: number | string;
   institutionalOwnership?: number | string;
   momentumScore?: number | string;
+  netProfitYoYGrowth?: number | string;
+  ltDebtToEquity?: number | string;
+  piotroski?: number | string;
+  distanceFromHigh?: number | string;
+  revenueGrowthQoQ?: number | string;
+  epsGrowth?: number | string;
+  roe?: number | string;
+  roce?: number | string;
+  altmanZ?: number | string;
+  debtToEquity?: number | string;
+  peg?: number | string;
+  pbv?: number | string;
+  industryPbv?: number | string;
+  institutionalActivity?: number | string;
+  promoterHolding?: number | string;
 };
 
 export type CsvParseDiagnostics = {
@@ -35,7 +50,16 @@ function normalizeSector(value: string | undefined) {
 }
 
 function toNumber(value: unknown, fallback = 0): number {
-  const n = typeof value === "number" ? value : Number(value);
+  if (value === undefined || value === null) return fallback;
+  const n =
+    typeof value === "number"
+      ? value
+      : Number(
+          String(value)
+            .replace(/,/g, "")
+            .replace(/%/g, "")
+            .trim()
+        );
   return Number.isFinite(n) ? n : fallback;
 }
 
@@ -72,6 +96,21 @@ export function parseStockInput(row: StockInput): Stock {
     peRatio: toNumber(row.peRatio),
     institutionalOwnership: toNumber(row.institutionalOwnership),
     momentumScore: toNumber(row.momentumScore),
+    netProfitYoYGrowth: toNumber(row.netProfitYoYGrowth, toNumber(row.revenueGrowth)),
+    ltDebtToEquity: toNumber(row.ltDebtToEquity, Number.NaN),
+    piotroski: toNumber(row.piotroski, Number.NaN),
+    distanceFromHigh: toNumber(row.distanceFromHigh, Number.NaN),
+    revenueGrowthQoQ: toNumber(row.revenueGrowthQoQ, Number.NaN),
+    epsGrowth: toNumber(row.epsGrowth, toNumber(row.netProfitYoYGrowth, Number.NaN)),
+    roe: toNumber(row.roe, Number.NaN),
+    roce: toNumber(row.roce, Number.NaN),
+    altmanZ: toNumber(row.altmanZ, Number.NaN),
+    debtToEquity: toNumber(row.debtToEquity, toNumber(row.ltDebtToEquity, Number.NaN)),
+    peg: toNumber(row.peg, Number.NaN),
+    pbv: toNumber(row.pbv, Number.NaN),
+    industryPbv: toNumber(row.industryPbv, Number.NaN),
+    institutionalActivity: toNumber(row.institutionalActivity, toNumber(row.institutionalOwnership, Number.NaN)),
+    promoterHolding: toNumber(row.promoterHolding, Number.NaN),
   };
   return stock;
 }
@@ -193,7 +232,7 @@ export function parseCsvToStockInputsWithDiagnostics(csv: string): {
     }
     const sector = (get("sector") ?? get("subSector") ?? "Unknown").toString().trim() || "Unknown";
     const subSector = (get("subSector") ?? get("sector") ?? "").toString().trim();
-    const revenueProxy = get("revenueGrowth") ?? get("netProfitYoYGrowth") ?? get("roe");
+    const revenueProxy = get("revenueGrowth") ?? get("netProfitYoYGrowth") ?? get("epsGrowth");
     const piotroskiRaw = get("piotroski");
     const piotroskiNum = piotroskiRaw === undefined ? NaN : Number((piotroskiRaw as string).toString().replace(/,/g, "").trim());
     const institutionalRaw = get("institutionalOwnership");
@@ -206,7 +245,12 @@ export function parseCsvToStockInputsWithDiagnostics(csv: string): {
         ? (piotroskiNum / 9).toFixed(6)
         : institutionalRaw) ??
       (Number.isFinite(piotroskiNum) && piotroskiNum > 0 ? (piotroskiNum / 9).toFixed(6) : undefined);
-    const momentumProxy = get("momentumScore") ?? get("revenueGrowth") ?? get("netProfitYoYGrowth");
+    const momentumProxy = get("momentumScore") ?? get("distanceFromHigh") ?? get("previousRevenueGrowth") ?? 0.5;
+    const debtProxy = get("debtToEquity") ?? get("ltDebtToEquity");
+    const netProfitProxy = get("netProfitYoYGrowth") ?? get("epsGrowth") ?? get("revenueGrowth");
+    const epsProxy = get("epsGrowth") ?? netProfitProxy;
+    const institutionalActivityProxy = get("institutionalActivity") ?? get("institutionalOwnership");
+    const promoterHoldingProxy = get("promoterHolding");
 
     out.push({
       name: rawName,
@@ -220,6 +264,21 @@ export function parseCsvToStockInputsWithDiagnostics(csv: string): {
       peRatio: get("peRatio"),
       institutionalOwnership: instProxy,
       momentumScore: momentumProxy,
+      netProfitYoYGrowth: netProfitProxy,
+      ltDebtToEquity: debtProxy,
+      piotroski: piotroskiRaw,
+      distanceFromHigh: get("distanceFromHigh"),
+      revenueGrowthQoQ: get("revenueGrowthQoQ"),
+      epsGrowth: epsProxy,
+      roe: get("roe"),
+      roce: get("roce"),
+      altmanZ: get("altmanZ"),
+      debtToEquity: debtProxy,
+      peg: get("peg"),
+      pbv: get("pbv"),
+      industryPbv: get("industryPbv"),
+      institutionalActivity: institutionalActivityProxy,
+      promoterHolding: promoterHoldingProxy,
     } satisfies StockInput);
   }
   const totalDataRows = Math.max(0, lines.length - (headerLineIdx + 1));

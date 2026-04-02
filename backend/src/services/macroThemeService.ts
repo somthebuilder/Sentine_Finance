@@ -178,24 +178,23 @@ async function extractKeywordsAI(text: string): Promise<string[]> {
   ].join("\n");
 
   const url = `${baseUrl.replace(/\/$/, "")}/chat/completions`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-
-  const json = await res.json().catch(() => null);
-  const content = json?.choices?.[0]?.message?.content;
-  if (typeof content !== "string") return fallbackExtractKeywords(text);
-
   try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    const json = await res.json().catch(() => null);
+    const content = json?.choices?.[0]?.message?.content;
+    if (typeof content !== "string") return fallbackExtractKeywords(text);
+
     const parsed = JSON.parse(content);
     const arr = Array.isArray(parsed) ? parsed : null;
     if (!arr) return fallbackExtractKeywords(text);
@@ -204,7 +203,8 @@ async function extractKeywordsAI(text: string): Promise<string[]> {
       .filter(Boolean)
       .slice(0, 10);
     return cleaned;
-  } catch {
+  } catch (err) {
+    console.warn("OpenAI keyword extraction failed, using deterministic keywords:", err);
     return fallbackExtractKeywords(text);
   }
 }

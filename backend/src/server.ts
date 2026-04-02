@@ -75,6 +75,21 @@ const stockSchema = z.object({
   peRatio: toLooseNumber,
   institutionalOwnership: toLooseNumber,
   momentumScore: toLooseNumber,
+  netProfitYoYGrowth: toLooseNumber.optional().default(0),
+  ltDebtToEquity: toLooseNumber.optional().default(0),
+  piotroski: toLooseNumber.optional().default(0),
+  distanceFromHigh: toLooseNumber.optional().default(0),
+  revenueGrowthQoQ: toLooseNumber.optional().default(0),
+  epsGrowth: toLooseNumber.optional().default(0),
+  roe: toLooseNumber.optional().default(0),
+  roce: toLooseNumber.optional().default(0),
+  altmanZ: toLooseNumber.optional().default(0),
+  debtToEquity: toLooseNumber.optional().default(0),
+  peg: toLooseNumber.optional().default(0),
+  pbv: toLooseNumber.optional().default(0),
+  industryPbv: toLooseNumber.optional().default(0),
+  institutionalActivity: toLooseNumber.optional().default(0),
+  promoterHolding: toLooseNumber.optional().default(0),
 });
 
 function asyncHandler(fn: express.RequestHandler) {

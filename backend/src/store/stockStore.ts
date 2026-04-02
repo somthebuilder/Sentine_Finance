@@ -18,6 +18,21 @@ function normalizeStock(s: Stock): Stock {
     peRatio: Number(s.peRatio),
     institutionalOwnership: Number(s.institutionalOwnership),
     momentumScore: Number(s.momentumScore),
+    netProfitYoYGrowth: Number(s.netProfitYoYGrowth),
+    ltDebtToEquity: Number(s.ltDebtToEquity),
+    piotroski: Number(s.piotroski),
+    distanceFromHigh: Number(s.distanceFromHigh),
+    revenueGrowthQoQ: Number(s.revenueGrowthQoQ),
+    epsGrowth: Number(s.epsGrowth),
+    roe: Number(s.roe),
+    roce: Number(s.roce),
+    altmanZ: Number(s.altmanZ),
+    debtToEquity: Number(s.debtToEquity),
+    peg: Number(s.peg),
+    pbv: Number(s.pbv),
+    industryPbv: Number(s.industryPbv),
+    institutionalActivity: Number(s.institutionalActivity),
+    promoterHolding: Number(s.promoterHolding),
   };
 }
 

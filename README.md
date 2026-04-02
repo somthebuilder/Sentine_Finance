@@ -4,7 +4,7 @@
   <img src="webapp/assets/logo.svg" alt="Sentinel logo" width="96" />
 </p>
 
-**Sentinel** is a macro-driven stock discovery engine that identifies which stocks are most likely to benefit from emerging economic and sector trends.
+**Sentinel** is a macro-driven stock discovery engine that identifies high-growth Indian stocks by combining macro trends with structured financial interpretation and deterministic scoring.
 
 Instead of screening stocks in isolation, Sentinel starts with what is happening in the real world - infrastructure spending, energy transitions, AI adoption - and maps those trends to stocks using deterministic logic and growth-focused scoring.
 
@@ -42,10 +42,25 @@ With:
 
 - Dynamic macro theme extraction from trusted Indian finance sources
 - Theme-to-stock matching using sector/subsector + keyword overlap
+- Financial interpretation layer that converts raw financial metrics into meaningful signals (growth quality, earnings strength, balance sheet risk)
 - Composite stock scoring using growth, momentum, ownership, valuation, and acceleration
 - Clear "why now", conviction, tier, and signal outputs
 - Web UI for fast experimentation with JSON/CSV/Excel-style pasted data
 - Chrome extension popup (local backend mode) for lightweight monitoring
+
+## Financial Interpretation Layer
+
+Sentinel does not treat financial metrics as raw numbers.
+
+Instead, it interprets them using predefined rules to understand what "good" looks like in the Indian market:
+
+- Revenue growth is classified as weak, good, or excellent
+- Earnings growth (EPS) is evaluated for consistency and strength
+- Debt levels are assessed for risk
+- Piotroski scores are used to gauge financial health
+- Momentum and institutional activity are used to detect market interest
+
+This allows Sentinel to reason about businesses, not just calculate scores.
 
 ## Tech Stack
 
@@ -71,8 +86,9 @@ With:
 2. Macro text is converted into theme keywords and normalized to known sector themes.
 3. You submit stock data via JSON/CSV/TSV/pasted screener table.
 4. Stocks are validated, normalized, and optionally tag-enriched.
-5. Stocks are ranked per theme with explainable score breakdowns.
-6. UI renders top picks with reasons, tiers, and confidence signals.
+5. Stocks are evaluated using a financial interpretation layer that classifies growth, earnings, debt, and quality metrics.
+6. Stocks are ranked per theme with explainable score breakdowns.
+7. UI renders top picks with reasons, tiers, and confidence signals.
 
 ## API Endpoints
 
@@ -152,6 +168,7 @@ Each stock row supports fields like:
 - Strengthen growth + momentum detection
 - Add breakout identification signals
 - Improve tagging quality
+- Improve financial interpretation rules across sectors (banks, capital goods, tech, etc.)
 
 ### Phase 2: Decision Layer
 - Add "Why now" signals (timing context)
@@ -187,3 +204,5 @@ For best GitHub discoverability:
 ## Disclaimer
 
 This is a research and decision-support tool, not financial advice. Always do your own due diligence before investing.
+
+Sentinel currently works best with Trendlyne-style data dumps. If you use other data sources, verify and adapt the financial interpretation layer before relying on outputs.

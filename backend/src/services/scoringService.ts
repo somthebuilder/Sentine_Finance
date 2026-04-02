@@ -2,10 +2,27 @@ import { Stock } from "../models/stock";
 import { Theme } from "../models/theme";
 import { calculateThemeRelevanceDetails } from "./themeService";
 import { polishReasonsIfNeeded } from "./aiEnrichmentService";
+import {
+  buildFactorScores,
+  buildRiskFlags,
+  buildStrengthProfile,
+  calculateFundamentalScore,
+  interpretMetricScores,
+  isEliteByRules,
+  normalize01,
+} from "./financialRules";
 
 export type ScoreBreakdown = {
   themeRelevance: number;
   revenueGrowthScore: number;
+  epsGrowthScore: number;
+  debtScore: number;
+  piotroskiScore: number;
+  growthFactor: number;
+  momentumFactor: number;
+  durabilityFactor: number;
+  valuationFactor: number;
+  participationFactor: number;
   momentumScore: number;
   institutionalScore: number;
   accelerationScore: number;
@@ -24,6 +41,8 @@ export type StockRecommendation = {
   signals: string[];
   whyNow: string;
   scoreBreakdown: ScoreBreakdown;
+  strengthProfile: string[];
+  riskFlags: string[];
   reasons: string[];
   // Backward compatibility for existing UI renderer.
   reason: string[];
@@ -32,16 +51,7 @@ export type StockRecommendation = {
 export type RankedByTheme = { theme: string; strength: number; topStocks: StockRecommendation[] };
 
 function normalizeTo01MaybePercent(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  if (value > 1 && value <= 100) return value / 100;
-  if (value > 1) return Math.min(1, value);
-  return Math.max(0, value);
-}
-
-function peRatioToValueScore(peRatio: number): number {
-  if (!Number.isFinite(peRatio) || peRatio <= 0) return 0;
-  const normalized = Math.max(0, Math.min(1, peRatio / 100));
-  return 1 - normalized;
+  return normalize01(value);
 }
 
 function accelerationScore(stock: Stock): number {
@@ -78,18 +88,14 @@ function pickStrongMetric(
 
 export function calculateFinalScore(stock: Stock, theme: Theme): number {
   const { themeRelevance } = calculateThemeRelevanceDetails(stock, theme);
-  const revenueGrowthScore = normalizeTo01MaybePercent(stock.revenueGrowth);
-  const momentumScore = normalizeTo01MaybePercent(stock.momentumScore);
-  const institutionalScore = normalizeTo01MaybePercent(stock.institutionalOwnership);
-  const peValueScore = peRatioToValueScore(stock.peRatio);
+  const fundamentalScore = calculateFundamentalScore(stock);
   const acceleration = accelerationScore(stock);
   const breakout = breakoutScore(stock);
 
-  const fundamentalScore = (revenueGrowthScore + momentumScore + institutionalScore + peValueScore) / 4;
-  // Sharper scoring formula requested by user.
-  const stockScore = themeRelevance * 0.3 + fundamentalScore * 0.5 + acceleration * 0.1 + breakout * 0.2;
-  const scaled = Math.min(stockScore * 1.5, 1);
-  return Number(scaled.toFixed(6));
+  // Theme + factor intelligence layer.
+  const stockScore = themeRelevance * 0.3 + fundamentalScore * 0.7 + acceleration * 0.05 + breakout * 0.05;
+  const clipped = Math.max(0, Math.min(1, stockScore));
+  return Number(clipped.toFixed(6));
 }
 
 export function generateReason(
@@ -104,9 +110,10 @@ export function generateReason(
     : `Sector/subsector aligns with ${theme.theme}`;
 
   // 1 metric-based reason (specific: strongest metric)
-  const revenueGrowthScore = normalizeTo01MaybePercent(stock.revenueGrowth);
-  const momentumScore = normalizeTo01MaybePercent(stock.momentumScore);
-  const institutionalScore = normalizeTo01MaybePercent(stock.institutionalOwnership);
+  const interpreted = interpretMetricScores(stock);
+  const revenueGrowthScore = interpreted.revenueGrowth;
+  const momentumScore = interpreted.momentum;
+  const institutionalScore = interpreted.institutionalActivity;
   const strongest = pickStrongMetric(revenueGrowthScore, momentumScore, institutionalScore);
 
   if (strongest === "revenueGrowth") {
@@ -125,28 +132,22 @@ export function passesGrowthFilter(stock: Stock): boolean {
     stock.sector.toLowerCase() === "na" ||
     stock.sector.toLowerCase() === "n/a";
 
+  const interpreted = interpretMetricScores(stock);
+  const momentum = interpreted.momentum;
+  const rev = interpreted.revenueGrowth;
+  const eps = interpreted.epsGrowth;
+  const pio = interpreted.piotroski;
+  const fundamental = calculateFundamentalScore(stock);
+
   if (sectorUnknown) {
-    // For parsed screener-style tables (proxy metrics), keep a slightly softer gate.
-    return (
-      normalizeTo01MaybePercent(stock.momentumScore) > 0.5 &&
-      normalizeTo01MaybePercent(stock.revenueGrowth) > 0.08 &&
-      normalizeTo01MaybePercent(stock.institutionalOwnership) > 0.12
-    );
+    return fundamental > 0.45 && (momentum > 0.45 || rev >= 0.7);
   }
 
-  return (
-    normalizeTo01MaybePercent(stock.momentumScore) > 0.65 &&
-    normalizeTo01MaybePercent(stock.revenueGrowth) > 0.12 &&
-    normalizeTo01MaybePercent(stock.institutionalOwnership) > 0.15
-  );
+  return fundamental > 0.55 && (momentum > 0.45 || eps >= 0.7 || pio >= 0.7);
 }
 
 function isElite(stock: Stock): boolean {
-  return (
-    normalizeTo01MaybePercent(stock.revenueGrowth) > 0.2 &&
-    normalizeTo01MaybePercent(stock.momentumScore) > 0.7 &&
-    normalizeTo01MaybePercent(stock.institutionalOwnership) > 0.3
-  );
+  return isEliteByRules(stock);
 }
 
 function getTier(score: number): "A+ (High Growth)" | "A (Strong)" | "B (Watchlist)" | "C (Ignore)" {
@@ -196,21 +197,26 @@ export async function rankStocksByTheme(themes: Theme[], stocks: Stock[]): Promi
         // Relax slightly so valid sector/subsector matches are not dropped.
         if (details.themeRelevance <= 0.35) return null;
 
-        const revenueGrowthScore = normalizeTo01MaybePercent(stock.revenueGrowth);
-        const momentumScore = normalizeTo01MaybePercent(stock.momentumScore);
-        const institutionalScore = normalizeTo01MaybePercent(stock.institutionalOwnership);
+        const interpreted = interpretMetricScores(stock);
+        const factors = buildFactorScores(stock);
+        const revenueGrowthScore = interpreted.revenueGrowth;
+        const epsGrowthScore = interpreted.epsGrowth;
+        const debtScore = interpreted.debt;
+        const piotroskiScore = interpreted.piotroski;
+        const momentumScore = interpreted.momentum;
+        const institutionalScore = interpreted.institutionalActivity;
 
         // Base score is deterministic; then weight by theme strength.
         const baseScore = calculateFinalScore(stock, theme);
         const themeStrengthMultiplier = 1 + strengthNormalized * 0.3;
         const eliteBoost = isElite(stock) ? 0.15 : 0;
         const rawComposite = baseScore * themeStrengthMultiplier + eliteBoost;
-        // Soft calibration prevents score saturation at exactly 1 for many stocks.
-        let score = 1 - Math.exp(-rawComposite * 0.9);
-        score = Math.max(0, Math.min(1, score));
+        let score = Math.max(0, Math.min(1, rawComposite));
         score = Number(score.toFixed(6));
 
         const reasons = generateReason(stock, theme, details);
+        const strengthProfile = buildStrengthProfile(stock);
+        const riskFlags = buildRiskFlags(stock);
         const signals = buildSignals(stock);
         const whyNow = buildWhyNow(stock, theme);
         const acc = accelerationScore(stock);
@@ -223,9 +229,19 @@ export async function rankStocksByTheme(themes: Theme[], stocks: Stock[]): Promi
           tier: getTier(score),
           signals,
           whyNow,
+          strengthProfile,
+          riskFlags,
           scoreBreakdown: {
             themeRelevance: Number(details.themeRelevance.toFixed(6)),
             revenueGrowthScore: Number(revenueGrowthScore.toFixed(6)),
+            epsGrowthScore: Number(epsGrowthScore.toFixed(6)),
+            debtScore: Number(debtScore.toFixed(6)),
+            piotroskiScore: Number(piotroskiScore.toFixed(6)),
+            growthFactor: Number(factors.growth.toFixed(6)),
+            momentumFactor: Number(factors.momentum.toFixed(6)),
+            durabilityFactor: Number(factors.durability.toFixed(6)),
+            valuationFactor: Number(factors.valuation.toFixed(6)),
+            participationFactor: Number(factors.participation.toFixed(6)),
             momentumScore: Number(momentumScore.toFixed(6)),
             institutionalScore: Number(institutionalScore.toFixed(6)),
             accelerationScore: Number(acc.toFixed(6)),

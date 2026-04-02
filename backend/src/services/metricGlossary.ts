@@ -1,7 +1,7 @@
 export const METRIC_GLOSSARY: Record<string, string[]> = {
   name: ["name", "stock", "company", "company name"],
   symbol: ["symbol", "ticker", "code"],
-  exchange: ["exchange", "market"],
+  exchange: ["exchange"],
   sector: ["sector", "industry sector", "segment"],
   subSector: ["subsector", "sub sector", "industry", "business segment"],
   tags: ["tags", "keywords", "themes"],
@@ -37,11 +37,14 @@ export const METRIC_GLOSSARY: Record<string, string[]> = {
     "1yrchg%",
     "2ypricechg%",
     "3ypricechg%",
+    "1yrchange%",
   ],
+  distanceFromHigh: ["distancefrom52whigh", "%distancefrom52whigh", "distancefromhigh"],
   ltDebtToEquity: [
     "ltdebttoequityann",
     "totaldebttototalequityann",
   ],
+  debtToEquity: ["debtequity", "debttoequity", "totaldebttototalequityann"],
   netProfitYoYGrowth: [
     "netprofitannyoygrowth%",
     "operatingprofitannyoygrowth%",
@@ -49,8 +52,17 @@ export const METRIC_GLOSSARY: Record<string, string[]> = {
     "epsgrowth%",
     "profitgrowth%",
   ],
+  revenueGrowthQoQ: ["revenueqoqgrowth%", "revenueqoqgrowth"],
+  epsGrowth: ["epsttmgrowth%", "epsttmgrowth", "epsgrowth%"],
   roe: ["roeann%", "roeann", "roe"],
+  roce: ["roceann%", "roceann", "roce"],
   piotroski: ["piotroskiscore", "fscore"],
+  altmanZ: ["altmanzscore", "altmanz"],
+  peg: ["pegttm", "peg", "fwdpeg"],
+  pbv: ["pbvadjusted", "pbv", "pricetobook"],
+  industryPbv: ["industrypbvttm", "industrypbv"],
+  institutionalActivity: ["deliveryvolavg6m", "deliveryvolavgmonth", "deliveryvolavgweek", "institutionalactivity"],
+  promoterHolding: ["promoterholdinglatest%", "promoterholdinglatest", "promoterholding"],
   bvps: ["bvshlatest", "bvshann", "bookvaluepershare"],
 };
 
@@ -70,15 +82,24 @@ function inferCanonicalMetric(headerText: string): string | undefined {
 
   if (/(^stock$|company|security|script|scripname|stockname)/.test(h)) return "name";
   if (/(symbol|ticker|code|isin)/.test(h)) return "symbol";
-  if (/(exchange|market)/.test(h)) return "exchange";
+  if (/^exchange$/.test(h)) return "exchange";
   if (/(^sector$|industrysector|sectorname)/.test(h)) return "sector";
   if (/(subsector|industry|businesssegment)/.test(h)) return "subSector";
 
   if (/(pettm|fwdpe|forwardpe|pe3yr|pe5yr|peratio|^pe$|pricetoearnings)/.test(h)) return "peRatio";
   if (/(revenue.*growth|rev.*growth|sales.*growth|topline.*growth|turnover.*growth|eps.*growth|profit.*growth)/.test(h)) return "revenueGrowth";
+  if (/(revenueqoq|qoqgrowth)/.test(h)) return "revenueGrowthQoQ";
+  if (/(distancefrom52w|distancefromhigh)/.test(h)) return "distanceFromHigh";
   if (/(delivery|institution|instholding|fii|dii|mutualfundholding|publicholding|piotroski|fscore)/.test(h)) return "institutionalOwnership";
   if (/(roe|returnonequity)/.test(h)) return "roe";
+  if (/(roce|returnoncapital)/.test(h)) return "roce";
   if (/(piotroski|fscore)/.test(h)) return "piotroski";
+  if (/(altmanz)/.test(h)) return "altmanZ";
+  if (/peg/.test(h)) return "peg";
+  if (/(pbv|pricetobook)/.test(h) && /industry/.test(h)) return "industryPbv";
+  if (/(pbv|pricetobook)/.test(h)) return "pbv";
+  if (/(promoterholding)/.test(h)) return "promoterHolding";
+  if (/(debttoequity|gearing|debtequity)/.test(h)) return "debtToEquity";
   if (/(chg|change|return|roc|performance|outperformance|underperformance)/.test(h)) return "momentumScore";
   return undefined;
 }

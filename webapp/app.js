@@ -18,7 +18,7 @@ function parseTags(cell) {
 const METRIC_GLOSSARY = {
   name: ["name", "stock", "company", "company name"],
   symbol: ["symbol", "ticker", "code"],
-  exchange: ["exchange", "market"],
+  exchange: ["exchange"],
   sector: ["sector", "industry sector", "segment"],
   subSector: ["subsector", "sub sector", "industry", "business segment"],
   tags: ["tags", "keywords", "themes"],
@@ -41,7 +41,7 @@ function inferCanonicalMetric(headerText) {
 
   if (/(^stock$|company|security|script|scripname|stockname)/.test(h)) return "name";
   if (/(symbol|ticker|code|isin)/.test(h)) return "symbol";
-  if (/(exchange|market)/.test(h)) return "exchange";
+  if (/^exchange$/.test(h)) return "exchange";
   if (/(^sector$|industrysector|sectorname)/.test(h)) return "sector";
   if (/(subsector|industry|businesssegment)/.test(h)) return "subSector";
 
@@ -297,6 +297,21 @@ function parseJsonOrCsv(input) {
         peRatio: Number(s.peRatio ?? 0),
         institutionalOwnership: Number(s.institutionalOwnership ?? 0),
         momentumScore: Number(s.momentumScore ?? 0),
+        netProfitYoYGrowth: Number(s.netProfitYoYGrowth ?? s.epsGrowth ?? 0),
+        ltDebtToEquity: Number(s.ltDebtToEquity ?? s.debtToEquity ?? 0),
+        piotroski: Number(s.piotroski ?? 0),
+        distanceFromHigh: Number(s.distanceFromHigh ?? 0),
+        revenueGrowthQoQ: Number(s.revenueGrowthQoQ ?? 0),
+        epsGrowth: Number(s.epsGrowth ?? s.netProfitYoYGrowth ?? 0),
+        roe: Number(s.roe ?? 0),
+        roce: Number(s.roce ?? 0),
+        altmanZ: Number(s.altmanZ ?? 0),
+        debtToEquity: Number(s.debtToEquity ?? s.ltDebtToEquity ?? 0),
+        peg: Number(s.peg ?? 0),
+        pbv: Number(s.pbv ?? 0),
+        industryPbv: Number(s.industryPbv ?? 0),
+        institutionalActivity: Number(s.institutionalActivity ?? s.institutionalOwnership ?? 0),
+        promoterHolding: Number(s.promoterHolding ?? 0),
       };
     });
   }
@@ -572,7 +587,15 @@ function renderRecommendations(themesRanked) {
       grid.className = "breakdownGrid";
       const bdItems = [
         ["Theme relevance", fmt01(breakdown.themeRelevance ?? 0)],
+        ["Growth factor", fmt01(breakdown.growthFactor ?? 0)],
+        ["Momentum factor", fmt01(breakdown.momentumFactor ?? 0)],
+        ["Durability factor", fmt01(breakdown.durabilityFactor ?? 0)],
+        ["Valuation factor", fmt01(breakdown.valuationFactor ?? 0)],
+        ["Participation factor", fmt01(breakdown.participationFactor ?? 0)],
         ["Revenue growth", fmt01(breakdown.revenueGrowthScore ?? 0)],
+        ["EPS growth", fmt01(breakdown.epsGrowthScore ?? 0)],
+        ["Debt score", fmt01(breakdown.debtScore ?? 0)],
+        ["Piotroski", fmt01(breakdown.piotroskiScore ?? 0)],
         ["Momentum score", fmt01(breakdown.momentumScore ?? 0)],
         ["Institutional", fmt01(breakdown.institutionalScore ?? 0)],
         ["Acceleration", fmt01(breakdown.accelerationScore ?? 0)],
@@ -641,6 +664,40 @@ function renderRecommendations(themesRanked) {
         }
 
         row.appendChild(reasonList);
+      }
+
+      const profile = Array.isArray(s.strengthProfile) ? s.strengthProfile.filter(Boolean) : [];
+      if (profile.length) {
+        const profileBlock = document.createElement("div");
+        profileBlock.className = "reasonList";
+        const head = document.createElement("div");
+        head.className = "reasonItem";
+        head.textContent = "Strength profile:";
+        profileBlock.appendChild(head);
+        for (const p of profile.slice(0, 4)) {
+          const it = document.createElement("div");
+          it.className = "reasonItem";
+          it.textContent = `- ${p}`;
+          profileBlock.appendChild(it);
+        }
+        row.appendChild(profileBlock);
+      }
+
+      const risks = Array.isArray(s.riskFlags) ? s.riskFlags.filter(Boolean) : [];
+      if (risks.length) {
+        const riskBlock = document.createElement("div");
+        riskBlock.className = "reasonList";
+        const head = document.createElement("div");
+        head.className = "reasonItem";
+        head.textContent = "Risk flags:";
+        riskBlock.appendChild(head);
+        for (const rf of risks.slice(0, 4)) {
+          const it = document.createElement("div");
+          it.className = "reasonItem";
+          it.textContent = `- ${rf}`;
+          riskBlock.appendChild(it);
+        }
+        row.appendChild(riskBlock);
       }
 
       stockList.appendChild(row);
