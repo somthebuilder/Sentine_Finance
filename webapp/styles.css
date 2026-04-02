@@ -1,14 +1,17 @@
 :root {
-  --bg: #f5f7fb;
+  --bg: #f8f9ff;
   --panel: #ffffff;
   --text: #0b1220;
   --muted: rgba(11, 18, 32, 0.65);
   --border: rgba(11, 18, 32, 0.12);
-  /* Logo-matched blue (SVGRepo primary) */
-  --accent: #4a5699;
-  --good: #16a34a;
-  --warn: #f59e0b;
-  --bad: #dc2626;
+  --accent: #4c5aa3;
+  --accent-pink: #d860b5;
+  --accent-orange: #fd9e22;
+  --accent-red: #f35a50;
+  --accent-yellow: #f9d73b;
+  --good: #1ea672;
+  --warn: #fd9e22;
+  --bad: #f35a50;
 }
 
 body {
@@ -28,7 +31,7 @@ body {
 header {
   padding: 12px 14px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(74, 86, 153, 0.12), transparent);
+  background: linear-gradient(120deg, rgba(76, 90, 163, 0.14), rgba(216, 96, 181, 0.07), transparent);
   width: 100%;
   max-width: 760px;
   box-sizing: border-box;
@@ -109,6 +112,11 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
+/* Recommendations should be grouped by theme in full-width rows. */
+#recsList.cards {
+  grid-template-columns: 1fr;
+}
+
 .card {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--border);
@@ -144,7 +152,7 @@ h2 {
 
 .chip {
   border: 1px solid var(--border);
-  background: rgba(37, 99, 235, 0.06);
+  background: rgba(76, 90, 163, 0.08);
   padding: 3px 7px;
   border-radius: 999px;
   font-size: 10.5px;
@@ -167,7 +175,7 @@ h2 {
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: rgba(37, 99, 235, 0.03);
+  background: linear-gradient(100deg, rgba(76, 90, 163, 0.05), rgba(249, 215, 59, 0.09));
   font-size: 12px;
   color: var(--muted);
   line-height: 1.35;
@@ -177,12 +185,19 @@ h2 {
   margin-top: 8px;
   display: grid;
   gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .stockList {
+    grid-template-columns: 1fr;
+  }
 }
 
 .stockRow {
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: rgba(37, 99, 235, 0.04);
+  background: linear-gradient(120deg, rgba(76, 90, 163, 0.05), rgba(216, 96, 181, 0.04));
   padding: 10px 10px 10px;
 }
 
@@ -205,7 +220,7 @@ h2 {
   padding: 4px 8px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: rgba(37, 99, 235, 0.08);
+  background: rgba(76, 90, 163, 0.12);
 }
 
 .tierChip {
@@ -215,7 +230,7 @@ h2 {
   padding: 3px 7px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: rgba(74, 86, 153, 0.1);
+  background: rgba(216, 96, 181, 0.12);
   color: var(--text);
 }
 
@@ -231,7 +246,7 @@ h2 {
   border-radius: 999px;
   border: 1px solid var(--border);
   padding: 3px 7px;
-  background: rgba(74, 86, 153, 0.06);
+  background: rgba(249, 215, 59, 0.18);
 }
 
 .scoreBarWrap {
@@ -336,7 +351,7 @@ h2 {
 
 .secondaryButton {
   margin-top: 0;
-  background: rgba(74, 86, 153, 0.12);
+  background: rgba(216, 96, 181, 0.12);
   color: var(--text);
   border: 1px solid var(--border);
 }
@@ -356,7 +371,7 @@ h2 {
   margin-top: 8px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: rgba(74, 86, 153, 0.05);
+  background: linear-gradient(100deg, rgba(76, 90, 163, 0.06), rgba(243, 90, 80, 0.05));
   padding: 10px;
   font-size: 11px;
   color: var(--text);

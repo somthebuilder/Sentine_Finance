@@ -3,6 +3,7 @@
 <p align="center">
   <img src="webapp/assets/logo.svg" alt="Sentinel logo" width="96" />
 </p>
+<p align="center"><sub>Official Sentinel brand mark</sub></p>
 
 **Sentinel** is a macro-driven stock discovery engine that identifies high-growth Indian stocks by combining macro trends with structured financial interpretation and deterministic scoring.
 
