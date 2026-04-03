@@ -1,54 +1,70 @@
 :root {
-  --bg: #f8f9ff;
-  --panel: #ffffff;
-  --text: #0b1220;
-  --muted: rgba(11, 18, 32, 0.65);
-  --border: rgba(11, 18, 32, 0.12);
-  --accent: #4c5aa3;
-  --accent-pink: #d860b5;
-  --accent-orange: #fd9e22;
-  --accent-red: #f35a50;
-  --accent-yellow: #f9d73b;
-  --good: #1ea672;
-  --warn: #fd9e22;
-  --bad: #f35a50;
+  --bg: #0f1220;
+  --bg-soft: #171a2d;
+  --panel: rgba(23, 26, 45, 0.78);
+  --panel-strong: rgba(24, 28, 48, 0.92);
+  --text: #eef1ff;
+  --muted: rgba(211, 219, 255, 0.72);
+  --border: rgba(170, 184, 255, 0.2);
+  --accent: #8f7bff;
+  --accent-2: #5ac8ff;
+  --accent-pink: #c58bff;
+  --good: #31c48d;
+  --warn: #f3bf62;
+  --bad: #f0667f;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: "Segoe UI", "Segoe UI Variable", "Noto Sans", sans-serif;
-  background: var(--bg);
+  font-family: "Inter", "Segoe UI", "Segoe UI Variable", "Noto Sans", sans-serif;
   color: var(--text);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 14px;
-  /* Requested global UI scale increase (fonts + spacing + controls). */
+  padding: 0 20px 24px;
+  background:
+    radial-gradient(1200px 600px at 15% -20%, rgba(143, 123, 255, 0.28), transparent 60%),
+    radial-gradient(1000px 520px at 90% -10%, rgba(90, 200, 255, 0.18), transparent 58%),
+    linear-gradient(180deg, #0c0f1b 0%, #0f1220 40%, #111425 100%);
   zoom: 1.2;
 }
 
 header {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(120deg, rgba(76, 90, 163, 0.14), rgba(216, 96, 181, 0.07), transparent);
   width: 100%;
-  max-width: 760px;
-  box-sizing: border-box;
-  margin: 0 auto;
+  max-width: 980px;
+  margin: 14px auto 6px;
+  padding: 0;
 }
 
 .headerRow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg, rgba(34, 39, 66, 0.76), rgba(21, 24, 42, 0.82));
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 10px 28px rgba(4, 6, 14, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .logo {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   flex: 0 0 auto;
-  border-radius: 10px;
+  border-radius: 12px;
+  background: radial-gradient(120% 120% at 30% 20%, rgba(143, 123, 255, 0.22), transparent 55%);
+  box-shadow:
+    0 0 0 1px rgba(143, 123, 255, 0.18),
+    0 6px 16px rgba(8, 10, 24, 0.55);
+  filter: drop-shadow(0 2px 10px rgba(90, 200, 255, 0.12));
 }
 
 .brandText {
@@ -58,52 +74,50 @@ header {
 }
 
 .title {
-  font-weight: 650;
-  letter-spacing: 0.2px;
+  font-weight: 760;
+  letter-spacing: 0.3px;
+  font-size: 18px;
 }
 
 .subtitle {
-  margin-top: 2px;
-  font-size: 12px;
+  margin-top: 1px;
+  font-size: 12.5px;
   color: var(--muted);
 }
 
 main {
-  padding: 12px 0 16px;
   width: 100%;
-  max-width: 760px;
-  box-sizing: border-box;
+  max-width: 980px;
+  padding: 8px 0 0;
 }
 
 .container {
   width: 100%;
-  max-width: 760px;
-  box-sizing: border-box;
-  padding: 0 14px;
+  display: grid;
+  gap: 14px;
 }
 
 section {
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-}
-
-section:last-child {
-  margin-bottom: 0;
-  border-bottom: 0;
-  padding-bottom: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(5, 8, 18, 0.34);
 }
 
 h2 {
-  margin: 0 0 8px;
-  font-size: 14px;
-  font-weight: 650;
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 760;
+  letter-spacing: 0.2px;
 }
 
 .status {
   font-size: 12px;
   color: var(--muted);
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
 .cards {
@@ -112,14 +126,13 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
-/* Recommendations should be grouped by theme in full-width rows. */
 #recsList.cards {
   grid-template-columns: 1fr;
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--border);
+  background: linear-gradient(145deg, rgba(27, 31, 52, 0.9), rgba(20, 24, 42, 0.9));
+  border: 1px solid rgba(162, 177, 255, 0.22);
   border-radius: 12px;
   padding: 12px;
 }
@@ -132,10 +145,9 @@ h2 {
 }
 
 .themeTitle {
-  font-weight: 650;
-  font-size: 13px;
+  font-weight: 700;
+  font-size: 14px;
   letter-spacing: 0.2px;
-  text-transform: none;
 }
 
 .subtle {
@@ -144,16 +156,16 @@ h2 {
 }
 
 .chips {
-  margin-top: 6px;
+  margin-top: 8px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 
 .chip {
-  border: 1px solid var(--border);
-  background: rgba(76, 90, 163, 0.08);
-  padding: 3px 7px;
+  border: 1px solid rgba(159, 176, 255, 0.22);
+  background: rgba(143, 123, 255, 0.16);
+  padding: 4px 8px;
   border-radius: 999px;
   font-size: 10.5px;
   color: var(--text);
@@ -163,19 +175,15 @@ h2 {
   margin-top: 10px;
   font-size: 11.5px;
   color: var(--muted);
-  line-height: 1.35;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  line-height: 1.4;
 }
 
 .matchInfo {
   margin: 8px 0 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: linear-gradient(100deg, rgba(76, 90, 163, 0.05), rgba(249, 215, 59, 0.09));
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(143, 123, 255, 0.3);
+  background: linear-gradient(120deg, rgba(143, 123, 255, 0.16), rgba(90, 200, 255, 0.12));
   font-size: 12px;
   color: var(--muted);
   line-height: 1.35;
@@ -188,7 +196,10 @@ h2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-@media (max-width: 900px) {
+@media (max-width: 980px) {
+  body {
+    padding: 0 12px 20px;
+  }
   .stockList {
     grid-template-columns: 1fr;
   }
@@ -196,9 +207,9 @@ h2 {
 
 .stockRow {
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: linear-gradient(120deg, rgba(76, 90, 163, 0.05), rgba(216, 96, 181, 0.04));
-  padding: 10px 10px 10px;
+  border: 1px solid rgba(168, 182, 255, 0.2);
+  background: linear-gradient(120deg, rgba(143, 123, 255, 0.12), rgba(90, 200, 255, 0.08));
+  padding: 10px;
 }
 
 .stockTopLine {
@@ -209,28 +220,28 @@ h2 {
 }
 
 .stockName {
-  font-weight: 650;
-  font-size: 12px;
-  line-height: 1.35;
+  font-weight: 680;
+  font-size: 12.5px;
+  line-height: 1.3;
 }
 
 .scoreChip {
   font-size: 11px;
-  font-weight: 650;
+  font-weight: 700;
   padding: 4px 8px;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(76, 90, 163, 0.12);
+  border: 1px solid rgba(156, 173, 255, 0.22);
+  background: rgba(90, 200, 255, 0.14);
 }
 
 .tierChip {
   margin-left: 6px;
   font-size: 10px;
-  font-weight: 650;
+  font-weight: 700;
   padding: 3px 7px;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(216, 96, 181, 0.12);
+  border: 1px solid rgba(182, 146, 255, 0.24);
+  background: rgba(197, 139, 255, 0.16);
   color: var(--text);
 }
 
@@ -244,9 +255,9 @@ h2 {
 .signalBadge {
   font-size: 10px;
   border-radius: 999px;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(167, 181, 255, 0.2);
   padding: 3px 7px;
-  background: rgba(249, 215, 59, 0.18);
+  background: rgba(49, 196, 141, 0.14);
 }
 
 .scoreBarWrap {
@@ -265,18 +276,18 @@ h2 {
   margin-top: 4px;
   height: 7px;
   border-radius: 999px;
-  background: rgba(11, 18, 32, 0.08);
+  background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
 
 .scoreBarFill {
   height: 100%;
   width: 0%;
-  background: var(--accent);
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
 }
 
 .breakdownGrid {
-  margin-top: 7px;
+  margin-top: 8px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px 10px;
@@ -285,12 +296,12 @@ h2 {
 .breakdownItem {
   font-size: 11px;
   color: var(--muted);
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .breakdownValue {
   color: var(--text);
-  font-weight: 650;
+  font-weight: 680;
 }
 
 .reasonList {
@@ -308,19 +319,23 @@ h2 {
 .textarea {
   width: 100%;
   min-height: 110px;
-  box-sizing: border-box;
-  background: var(--panel);
-  border: 1px solid var(--border);
+  background: var(--panel-strong);
+  border: 1px solid rgba(166, 180, 255, 0.24);
   color: var(--text);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 10px;
   resize: vertical;
   font-size: 12px;
   outline: none;
 }
 
+.textarea:focus {
+  border-color: rgba(143, 123, 255, 0.8);
+  box-shadow: 0 0 0 2px rgba(143, 123, 255, 0.2);
+}
+
 .narrativeSourcesInput {
-  min-height: 78px;
+  min-height: 80px;
   margin-bottom: 8px;
 }
 
@@ -328,12 +343,18 @@ h2 {
   margin-top: 8px;
   width: 100%;
   padding: 10px;
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), #7f8cff);
   color: #ffffff;
-  border: 0;
-  border-radius: 8px;
-  font-weight: 600;
+  border: 1px solid rgba(196, 206, 255, 0.18);
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(70, 67, 144, 0.35);
 }
 
 .uploadRow {
@@ -345,24 +366,23 @@ h2 {
 
 .fileInput {
   width: 100%;
-  box-sizing: border-box;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  border: 1px solid rgba(166, 180, 255, 0.24);
+  border-radius: 10px;
   padding: 8px;
-  background: var(--panel);
+  background: var(--panel-strong);
   color: var(--text);
   font-size: 12px;
 }
 
 .secondaryButton {
   margin-top: 0;
-  background: rgba(216, 96, 181, 0.12);
+  background: rgba(197, 139, 255, 0.16);
   color: var(--text);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(181, 153, 255, 0.28);
 }
 
 .button:active {
-  transform: translateY(1px);
+  transform: translateY(0);
 }
 
 .hint {
@@ -374,9 +394,9 @@ h2 {
 
 .diagBox {
   margin-top: 8px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: linear-gradient(100deg, rgba(76, 90, 163, 0.06), rgba(243, 90, 80, 0.05));
+  border: 1px solid rgba(143, 123, 255, 0.34);
+  border-radius: 10px;
+  background: linear-gradient(120deg, rgba(143, 123, 255, 0.15), rgba(240, 102, 127, 0.08));
   padding: 10px;
   font-size: 11px;
   color: var(--text);

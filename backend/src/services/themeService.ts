@@ -27,8 +27,19 @@ const BASE_THEMES: Theme[] = [
   },
   {
     theme: "Healthcare",
-    sectors: ["Healthcare", "Biotech", "Pharma", "Medical"],
-    keywords: ["health", "healthcare", "biotech", "pharma", "medical", "drug", "vaccine"],
+    sectors: ["Healthcare", "Biotech", "Pharma", "Medical", "Pharmaceuticals", "Biotechnology"],
+    keywords: [
+      "health",
+      "healthcare",
+      "biotech",
+      "pharma",
+      "pharmaceutical",
+      "pharmaceuticals",
+      "biotechnology",
+      "medical",
+      "drug",
+      "vaccine",
+    ],
     rationale:
       "Look for healthcare innovation/rollout: biotech/pharma pipeline updates, drug demand, and medical spend resilience.",
   },
@@ -102,11 +113,36 @@ export function calculateThemeRelevanceDetails(stock: Stock, theme: Theme): Them
     for (const x of a) if (b.has(x)) return true;
     return false;
   };
+
+  /** Long-form screener tokens ("pharmaceuticals") vs theme keywords ("pharma"). */
+  function tokensRelate(a: string, b: string): boolean {
+    if (a === b) return true;
+    const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
+    if (shorter.length < 3) return false;
+    return longer.startsWith(shorter);
+  }
+
+  function hasFlexibleTokenIntersection(a: Set<string>, b: Set<string>) {
+    for (const x of a) {
+      if (b.has(x)) return true;
+      for (const y of b) {
+        if (tokensRelate(x, y)) return true;
+      }
+    }
+    return false;
+  }
+
   const sectorMatch: 0 | 1 =
-    themeSectors.has(normalizedSector) || hasTokenIntersection(sectorTokens, themeSectorTokens) ? 1 : 0;
+    themeSectors.has(normalizedSector) ||
+    hasTokenIntersection(sectorTokens, themeSectorTokens) ||
+    hasFlexibleTokenIntersection(sectorTokens, themeSectorTokens)
+      ? 1
+      : 0;
   const subSectorMatch: 0 | 1 =
     !!stock.subSector &&
-    (themeSectors.has(normalizeToken(stock.subSector)) || hasTokenIntersection(subSectorTokens, themeSectorTokens))
+    (themeSectors.has(normalizeToken(stock.subSector)) ||
+      hasTokenIntersection(subSectorTokens, themeSectorTokens) ||
+      hasFlexibleTokenIntersection(subSectorTokens, themeSectorTokens))
       ? 1
       : 0;
 
@@ -123,11 +159,25 @@ export function calculateThemeRelevanceDetails(stock: Stock, theme: Theme): Them
     for (const tk of tokenize(k)) keywordSet.add(tk);
   }
 
-  // Jaccard-style overlap in [0..1].
-  const intersection = new Set<string>();
-  for (const t of tagSet) if (keywordSet.has(t)) intersection.add(t);
+  // Tag/keyword alignment: strict hits plus prefix-style hits (screener vs macro vocabulary).
+  const matchedTags = new Set<string>();
+  for (const t of tagSet) {
+    if (keywordSet.has(t)) {
+      matchedTags.add(t);
+      continue;
+    }
+    for (const k of keywordSet) {
+      if (tokensRelate(t, k)) {
+        matchedTags.add(t);
+        break;
+      }
+    }
+  }
   const unionSize = new Set<string>([...tagSet, ...keywordSet]).size;
-  const overlap = unionSize > 0 ? intersection.size / unionSize : 0;
+  const jaccardLike = unionSize > 0 ? matchedTags.size / unionSize : 0;
+  // Floor so a single strong token (e.g. "pharmaceuticals" ~ "pharma") still moves the needle.
+  const hitFloor = matchedTags.size >= 2 ? 0.42 : matchedTags.size >= 1 ? 0.28 : 0;
+  const overlap = Math.max(jaccardLike, hitFloor);
 
   // If sector is unknown, rely on tag-keyword alignment (deterministic fallback).
   const themeRelevance = sectorUnknown
@@ -138,7 +188,7 @@ export function calculateThemeRelevanceDetails(stock: Stock, theme: Theme): Them
     themeRelevance,
     sectorMatch,
     subSectorMatch,
-    matchedTags: Array.from(intersection).slice(0, 4),
+    matchedTags: Array.from(matchedTags).slice(0, 4),
   };
 }
 

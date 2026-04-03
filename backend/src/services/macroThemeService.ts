@@ -44,6 +44,19 @@ const THEME_MAP: Record<string, string> = {
   copper: "Metals",
   steel: "Metals",
   aluminium: "Metals",
+  pharma: "Healthcare",
+  pharmaceutical: "Healthcare",
+  biotech: "Healthcare",
+  hospital: "Healthcare",
+  healthcare: "Healthcare",
+  drug: "Healthcare",
+  realty: "Realty",
+  reit: "Realty",
+  housing: "Realty",
+  chemical: "Chemicals",
+  chemicals: "Chemicals",
+  agrochemical: "Chemicals",
+  petrochemical: "Chemicals",
 };
 
 const NARRATIVE_THEME_KEYWORDS: Record<string, string[]> = {
@@ -55,6 +68,21 @@ const NARRATIVE_THEME_KEYWORDS: Record<string, string[]> = {
   Defense: ["defense", "defence", "aerospace", "military", "security"],
   Railways: ["railways", "railway", "wagon", "rail infra"],
   "Energy Transition": ["energy", "power", "renewable", "solar", "wind", "oil", "gas", "utility", "grid"],
+  Healthcare: [
+    "healthcare",
+    "health",
+    "pharma",
+    "pharmaceutical",
+    "pharmaceuticals",
+    "biotech",
+    "biotechnology",
+    "hospital",
+    "medicine",
+    "drug",
+    "clinical",
+  ],
+  Realty: ["realty", "real estate", "property", "housing", "developer", "construction", "land"],
+  Chemicals: ["chemical", "chemicals", "agrochemical", "petrochemical", "specialty chemical", "fertilizer"],
 };
 
 const DEFAULT_INCLUDE_DOMAINS = [
@@ -520,7 +548,7 @@ export async function getDynamicMacroThemes(
     })
     .filter((t) => t.strength > 0.05)
     .sort((a, b) => b.strength - a.strength)
-    .slice(0, 8);
+    .slice(0, 12);
 
   themeCache.set(cacheKey, { themes, cachedAtMs: Date.now() });
   return themes;
@@ -528,17 +556,24 @@ export async function getDynamicMacroThemes(
 
 export function macroThemesToThemeModels(macroThemes: MacroTheme[]): Theme[] {
   const baseThemeMap = new Map(getBaseThemes().map((b) => [b.theme.toLowerCase(), b]));
-  return macroThemes.map((t) => ({
+  return macroThemes.map((t) => {
+    const defaults = NARRATIVE_THEME_KEYWORDS[t.theme] ?? [];
+    const fromNarrative = t.keywords ?? [];
+    const mergedKeywords = [...new Set([...defaults, ...fromNarrative])];
+    const baseKws = baseThemeMap.get(t.theme.toLowerCase())?.keywords ?? [];
+    const keywordList = (mergedKeywords.length ? mergedKeywords : baseKws).slice(0, 16);
+    return {
     ...(baseThemeMap.get(t.theme.toLowerCase()) ?? {}),
     theme: t.theme,
     sectors: (baseThemeMap.get(t.theme.toLowerCase())?.sectors ?? [t.theme]).slice(0, 10),
-    keywords: (t.keywords.length ? t.keywords : baseThemeMap.get(t.theme.toLowerCase())?.keywords ?? []).slice(0, 12),
+    keywords: keywordList,
     rationale: `Macro theme strength: ${t.strength}. Blend = 50% market trend + 50% user-source narrative, overlap boost ${t.overlapBoost ?? 0}.`,
     strength: t.strength,
     marketScore: t.marketScore,
     narrativeScore: t.narrativeScore,
     overlapBoost: t.overlapBoost,
     sourceEvidenceCount: t.sourceEvidenceCount,
-  }));
+  };
+  });
 }
 

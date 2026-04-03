@@ -529,9 +529,9 @@ function renderRecommendations(themesRanked) {
     return;
   }
 
-  const fmt01 = (x) => {
+  const bandFromScore01 = (x) => {
     const n = Number(x);
-    if (!Number.isFinite(n)) return "1.0/5 (Low)";
+    if (!Number.isFinite(n)) return { scaled: 1, band: "Low" };
     const clipped = Math.max(0, Math.min(1, n));
     const scaled = 1 + clipped * 4;
     let band = "Low";
@@ -539,6 +539,34 @@ function renderRecommendations(themesRanked) {
     else if (scaled >= 3.6) band = "Strong";
     else if (scaled >= 2.8) band = "Good";
     else if (scaled >= 2.0) band = "Fair";
+    return { scaled, band };
+  };
+
+  const fmt01 = (x) => {
+    const n = Number(x);
+    if (!Number.isFinite(n)) return "1.0/5 (Low)";
+    const { scaled, band } = bandFromScore01(n);
+    return `${scaled.toFixed(1)}/5 (${band})`;
+  };
+
+  /** Match backend formatPercentLikeDecimal: value may be fraction or already a percent. */
+  const fmtPercentLike = (value) => {
+    if (!Number.isFinite(value)) return "—";
+    const pct = value > 1 ? (value <= 100 ? value : 100) : value * 100;
+    return `${pct.toFixed(2)}%`;
+  };
+
+  /** Prefer a concrete raw reading; fall back to the 1–5 score. Band always from the normalized score. */
+  const fmtActualWithBand = (raw, score01, formatRaw) => {
+    const s = Number(score01);
+    const scoreOk = Number.isFinite(s);
+    const n = Number(raw);
+    const rawOk = Number.isFinite(n);
+    if (!scoreOk && !rawOk) return "—";
+    const { scaled, band } = bandFromScore01(scoreOk ? s : 0);
+    if (rawOk) {
+      return `${formatRaw(n)} (${band})`;
+    }
     return `${scaled.toFixed(1)}/5 (${band})`;
   };
 
@@ -642,6 +670,11 @@ function renderRecommendations(themesRanked) {
 
     const grid = document.createElement("div");
     grid.className = "breakdownGrid";
+    const fmtPiotroskiRaw = (v) =>
+      Math.abs(v - Math.round(v)) < 1e-6 ? String(Math.round(v)) : v.toFixed(1);
+    const fmtInstitutionalRaw = (v) =>
+      v.toLocaleString(undefined, { maximumFractionDigits: 2 });
+
     const bdItems = [
       ["Theme relevance", fmt01(breakdown.themeRelevance ?? 0)],
       ["Growth factor", fmt01(breakdown.growthFactor ?? 0)],
@@ -649,20 +682,32 @@ function renderRecommendations(themesRanked) {
       ["Durability factor", fmt01(breakdown.durabilityFactor ?? 0)],
       ["Valuation factor", fmt01(breakdown.valuationFactor ?? 0)],
       ["Participation factor", fmt01(breakdown.participationFactor ?? 0)],
-      ["Revenue growth", fmt01(breakdown.revenueGrowthScore ?? 0)],
-      ["EPS growth", fmt01(breakdown.epsGrowthScore ?? 0)],
-      ["Debt score", fmt01(breakdown.debtScore ?? 0)],
-      ["Piotroski", fmt01(breakdown.piotroskiScore ?? 0)],
-      ["Momentum score", fmt01(breakdown.momentumScore ?? 0)],
-      ["Institutional", fmt01(breakdown.institutionalScore ?? 0)],
+      [
+        "Revenue growth",
+        fmtActualWithBand(breakdown.rawRevenueGrowth, breakdown.revenueGrowthScore ?? 0, fmtPercentLike),
+      ],
+      [
+        "EPS growth",
+        fmtActualWithBand(breakdown.rawEpsGrowth, breakdown.epsGrowthScore ?? 0, fmtPercentLike),
+      ],
+      [
+        "Debt score",
+        fmtActualWithBand(breakdown.rawDebtToEquity, breakdown.debtScore ?? 0, (x) => x.toFixed(2)),
+      ],
+      [
+        "Piotroski",
+        fmtActualWithBand(breakdown.rawPiotroski, breakdown.piotroskiScore ?? 0, fmtPiotroskiRaw),
+      ],
+      [
+        "Momentum score",
+        fmtActualWithBand(breakdown.rawMomentum, breakdown.momentumScore ?? 0, fmtPercentLike),
+      ],
+      [
+        "Institutional",
+        fmtActualWithBand(breakdown.rawInstitutional, breakdown.institutionalScore ?? 0, fmtInstitutionalRaw),
+      ],
       ["Acceleration", fmt01(breakdown.accelerationScore ?? 0)],
       ["Breakout", fmt01(breakdown.breakoutScore ?? 0)],
-      ["Raw Revenue input", String(breakdown.rawRevenueGrowth ?? "-")],
-      ["Raw EPS input", String(breakdown.rawEpsGrowth ?? "-")],
-      ["Raw Debt/Equity input", String(breakdown.rawDebtToEquity ?? "-")],
-      ["Raw Piotroski input", String(breakdown.rawPiotroski ?? "-")],
-      ["Raw Momentum input", String(breakdown.rawMomentum ?? "-")],
-      ["Raw Institutional input", String(breakdown.rawInstitutional ?? "-")],
     ];
     for (const [k, v] of bdItems) {
       const item = document.createElement("div");
@@ -944,6 +989,10 @@ async function runCombinedAnalysis() {
       : "Running analysis with default narrative sources...",
     null
   );
+  const recsStatusEl = $("recsStatus");
+  if (recsStatusEl) {
+    showStatus(recsStatusEl, "Updating themes for recommendations…", null);
+  }
   await loadThemes({ forceRefresh: true });
   await loadRecommendations({ forceRefresh: true });
 }
@@ -1007,9 +1056,13 @@ async function submitStocks(options = {}) {
     const modeLabel = data?.mode === "merge" ? "merged" : "replaced";
     showStatus(
       status,
-      `Stocks ${modeLabel} (${accepted} accepted, ${rejected} rejected). Refreshing recommendations...`,
+      `Stocks ${modeLabel} (${accepted} accepted, ${rejected} rejected).`,
       null
     );
+    const recsStatusEl = $("recsStatus");
+    if (recsStatusEl) {
+      showStatus(recsStatusEl, "Updating themes for recommendations…", null);
+    }
     await loadThemes();
     await loadRecommendations();
   } catch (e) {

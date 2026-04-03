@@ -1,220 +1,114 @@
-# Sentinel - Find High-Growth Indian Stocks from Macro Trends
+# Sentinel — Macro-driven stock discovery (India)
 
 <p align="center">
-  <img src="webapp/assets/logo.svg" alt="Sentinel logo" width="96" />
+  <img src="webapp/assets/logo.svg" alt="Sentinel logo" width="88" />
 </p>
-<p align="center"><sub>Official Sentinel brand mark</sub></p>
 
-**Sentinel** is a macro-driven stock discovery engine that identifies high-growth Indian stocks by combining macro trends with structured financial interpretation and deterministic scoring.
+**Sentinel** maps **macro themes** to **high-growth Indian stocks** using deterministic scoring and a **financial interpretation layer** (growth, earnings, debt, quality—not raw numbers only).
 
-Instead of screening stocks in isolation, Sentinel starts with what is happening in the real world - infrastructure spending, energy transitions, AI adoption - and maps those trends to stocks using deterministic logic and growth-focused scoring.
+It answers: **“What stocks are positioned to benefit from what is happening right now?”**
 
-Sentinel helps you answer:
-**"What stocks benefit from what is happening right now in the market?"**
+**Pipeline:** narrative + market signals → themes → match stocks by sector/subsector + keywords → score and rank → explainable cards in the UI.
 
-## Product Preview
+---
 
-### Themes Dashboard
+## Product preview
 
-![Sentinel macro themes dashboard](docs/images/sentinel-themes.png)
+### Themes (market + narrative)
 
-### Add Stocks Workflow
+Themes blend **market trend** text (indices / configured sources) with **your narrative sources** (domains or exact URLs). Each card shows strength, tags, and **signal mix** (market vs user narrative, overlap band, evidence count).
 
-![Sentinel stock ingestion workflow](docs/images/sentinel-add-stocks.png)
+![Sentinel themes dashboard](docs/images/sentinel-themes.png)
 
-### Recommendations by Theme
+### Analyze stocks
 
-![Sentinel recommendations and stock ingestion workflow](docs/images/sentinel-recommendations.png)
+Paste JSON, CSV/TSV, or an Excel table, or **Load CSV/TSV File**. Loading a file **replaces** the in-memory universe. **Analyze stocks** submits to the API and refreshes themes and recommendations.
+
+![Sentinel analyze stocks section](docs/images/sentinel-analyze-stocks.png)
+
+### Recommendations
+
+Ranked **stock cards**: conviction/tier, theme and sector chips, factor breakdown (1–5-style bands), raw inputs where available, and **why now** rationale.
+
+![Sentinel recommendation cards](docs/images/sentinel-recommendations.png)
+
+---
 
 ## Why Sentinel
 
-Most tools answer:
-**"What stocks look good?"**
+| Typical tools | Sentinel |
+|---------------|----------|
+| “What looks good on a screen?” | “What fits **today’s** macro themes?” |
+| Opaque ranks | Deterministic rules + visible breakdowns |
 
-Sentinel answers:
-**"What stocks are positioned to benefit from what is happening right now?"**
+---
 
-It bridges the gap between:
-- macro trends (news, sector flows)
-- and actionable stock ideas
+## Core features
 
-With:
-- deterministic mapping (no black-box AI picks)
-- growth-focused scoring (momentum + acceleration)
-- clear reasoning for every recommendation
+- Dynamic themes from Indian finance sources (optional Tavily/OpenAI; fallbacks if keys are missing)
+- Theme ↔ stock matching: sector / subSector + keyword overlap; relevance thresholding
+- **Financial interpretation layer:** classifies revenue/EPS growth, debt risk, Piotroski, momentum, institutional activity
+- Composite scoring: growth, momentum, participation, valuation, acceleration
+- Web UI: paste or upload screener-style data
 
-## Core Features
+### Financial interpretation layer
 
-- Dynamic macro theme extraction from trusted Indian finance sources
-- Theme-to-stock matching using sector/subsector + keyword overlap
-- Financial interpretation layer that converts raw financial metrics into meaningful signals (growth quality, earnings strength, balance sheet risk)
-- Composite stock scoring using growth, momentum, ownership, valuation, and acceleration
-- Clear "why now", conviction, tier, and signal outputs
-- Web UI for fast experimentation with JSON/CSV/Excel-style pasted data
+Rules turn metrics into signals (e.g. weak / good / excellent growth, balance-sheet risk, quality). That is how Sentinel **reasons** about names, not only sums columns.
 
-## Financial Interpretation Layer
+---
 
-Sentinel does not treat financial metrics as raw numbers.
+## Tech stack
 
-Instead, it interprets them using predefined rules to understand what "good" looks like in the Indian market:
+| Area | Stack |
+|------|--------|
+| Backend | Node.js, Express 5, TypeScript, Zod |
+| Integrations | Optional Tavily (search), OpenAI (enrichment / polish) |
+| Frontend | Static `webapp/` (HTML/CSS/JS), served by the backend |
 
-- Revenue growth is classified as weak, good, or excellent
-- Earnings growth (EPS) is evaluated for consistency and strength
-- Debt levels are assessed for risk
-- Piotroski scores are used to gauge financial health
-- Momentum and institutional activity are used to detect market interest
+**API:** `GET /health`, `GET /trends` · `GET /themes`, `GET /recommendations`, `POST /stocks` (JSON or `csv` text with `replace: true` to overwrite the universe).
 
-This allows Sentinel to reason about businesses, not just calculate scores.
+---
 
-## Tech Stack
+## Quick start
 
-### Backend (`backend/`)
-- Node.js + Express 5
-- TypeScript
-- Zod validation for robust input parsing
-- Optional Tavily integration for macro source retrieval
-- Optional OpenAI integration for keyword extraction and reason polishing
-
-### Web App (`webapp/`)
-- Vanilla HTML/CSS/JavaScript
-- Single-page local interface served by backend
-- Rich stock ingestion parser (JSON, CSV, TSV, pasted tables)
-
-## How It Works (User Flow)
-
-1. Sentinel fetches macro data (or fallback themes if APIs are not configured).
-2. Macro text is converted into theme keywords and normalized to known sector themes.
-3. You submit stock data via JSON/CSV/TSV/pasted screener table.
-4. Stocks are validated, normalized, and optionally tag-enriched.
-5. Stocks are evaluated using a financial interpretation layer that classifies growth, earnings, debt, and quality metrics.
-6. Stocks are ranked per theme with explainable score breakdowns.
-7. UI renders top picks with reasons, tiers, and confidence signals.
-
-## API Endpoints
-
-- `GET /health` - service health check
-- `GET /trends` - macro-driven themes
-- `GET /themes` - alias of trends output
-- `GET /recommendations` - ranked recommendations by theme
-- `POST /stocks` - ingest stock payload (JSON/CSV/text)
-
-## Run Locally
-
-### 1) Clone and install backend dependencies
+**Needs:** Node.js 18+ and npm.
 
 ```bash
 git clone https://github.com/somthebuilder/Sentinel_Finance.git
 cd Sentinel_Finance/backend
 npm install
-```
-
-### 2) Configure environment
-
-```bash
 cp .env.example .env
-```
-
-Set values in `backend/.env`:
-- `TAVILY_BASE_URL`
-- `TAVILY_API_KEY`
-- `TAVILY_TIMEOUT_MS`
-- `TAVILY_INCLUDE_DOMAINS`
-- `OPENAI_API_KEY` (optional)
-- `OPENAI_MODEL` (optional, default available in example)
-- `PORT`
-
-### 3) Start in development mode (recommended)
-
-```bash
-cd backend
+# Edit .env — at minimum set TAVILY_API_KEY for richer themes; OPENAI_* optional
 npm run dev
 ```
 
-Open:
-- App UI: [http://localhost:3000](http://localhost:3000)
-- Health check: [http://localhost:3000/health](http://localhost:3000/health)
+Open **http://localhost:3000** (or your `PORT`). Production-style: `npm run build && npm run start`.
 
-### 4) Production-style run (optional)
+### Use the app
 
-```bash
-cd backend
-npm run build
-npm run start
-```
+1. **Themes** — Adjust narrative sources; **Run Combined Analysis** refreshes themes and recommendations. Read **signal mix** to see market vs your sources and overlap.
+2. **Analyze stocks** — Paste or upload; **Analyze stocks** runs ingest + scoring. Watch status under **Recommendations** for progress.
+3. **Recommendations** — If empty, check the parse report and that sectors/tags overlap active themes.
 
-The web app is served by the backend from `webapp/` at the same URL.
+**Data:** Works best with **Trendlyne-style** exports; other screeners may need interpreter tweaks (see disclaimer).
 
-## Input Format (Minimum)
+---
 
-Each stock row supports fields like:
-- `name`
-- `symbol`
-- `exchange`
-- `sector`
-- `Industry`
-- `tags`
-- `revenueGrowth`
-- `previousRevenueGrowth`
-- `peRatio`
-- `institutionalOwnership`
-- `momentumScore`
+## Typical stock fields
 
-## Current Problems Being Solved
+`name`, `symbol`, `exchange`, `sector`, `subSector`, `tags`, plus growth/valuation/ownership fields the parser can map (e.g. `revenueGrowth`, `peRatio`, `institutionalOwnership`, `momentumScore`). Aliasing handles many CSV header variants.
 
-- **Signal quality in noisy macro news**  
-  News feeds contain duplicates and low-value updates. Sentinel applies source filtering, deduping, and controlled theme mapping.
+---
 
-- **Mapping messy screener exports into normalized stock records**  
-  Different tools use inconsistent headers. Sentinel includes robust aliasing and fallback parsing for real-world CSV/Excel data.
+## Roadmap (summary)
 
-- **Balancing explainability with scoring quality**  
-  Black-box outputs reduce trust. Sentinel keeps deterministic scoring and exposes score breakdowns plus reasons.
+- **Now:** Sharper theme ↔ stock mapping, sector-specific interpretation rules, tagging and breakout-style signals  
+- **Next:** Validation (hit rates, history), execution hints (timing, risk), product features (watchlists, multi-user)
 
-- **Cold-start dependency risk**  
-  If external APIs are unavailable, Sentinel falls back to deterministic theme logic so the app still runs.
-
-## Roadmap
-
-### Phase 1: Signal Quality (Now)
-- Improve theme -> stock mapping accuracy
-- Strengthen growth + momentum detection
-- Add breakout identification signals
-- Improve tagging quality
-- Improve financial interpretation rules across sectors (banks, capital goods, tech, etc.)
-
-### Phase 2: Decision Layer
-- Add "Why now" signals (timing context)
-- Add conviction scoring and ranking tiers
-- Add leader vs follower detection within themes
-
-### Phase 3: Validation Layer
-- Backtest theme -> stock performance
-- Track hit rate of recommendations
-- Add historical theme performance dashboards
-
-### Phase 4: Execution Layer
-- Entry timing signals (breakout vs pullback)
-- Position sizing suggestions
-- Risk flags and exit signals
-
-### Phase 5: Productization
-- Watchlists + alerts
-- Portfolio tracking
-- Multi-user SaaS
-
-## SEO Keywords
-
-Indian stock market, stock screener, macro trends, AI investing, fundamental analysis, growth investing, stock analysis India.
-
-## Repository Metadata Recommendations
-
-For best GitHub discoverability:
-- **Repository name:** `Sentinel_Finance` (already updated)
-- **Description:** `Macro-driven stock discovery engine that maps real-world trends to high-growth Indian stocks using deterministic scoring`
-- **Suggested topics:** `stock-market`, `india`, `finance`, `investing`, `macro-trends`, `ai`, `stock-analysis`
+---
 
 ## Disclaimer
 
-This is a research and decision-support tool, not financial advice. Always do your own due diligence before investing.
+Not financial advice. Do your own diligence.
 
-Sentinel currently works best with Trendlyne-style data dumps. If you use other data sources, verify and adapt the financial interpretation layer before relying on outputs.
+Sentinel is tuned for **Trendlyne-style** dumps; verify the financial interpretation layer for other data vendors before relying on scores.

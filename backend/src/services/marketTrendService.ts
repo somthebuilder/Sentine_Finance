@@ -18,6 +18,9 @@ const THEME_MARKET_KEYWORDS: Record<string, string[]> = {
   Defense: ["defence", "defense", "aerospace"],
   Railways: ["rail", "railway"],
   "Energy Transition": ["energy", "power", "oil", "gas", "renewable", "utility"],
+  Healthcare: ["pharma", "health", "hospital", "biotech", "drug"],
+  Realty: ["realty", "real estate", "property", "housing"],
+  Chemicals: ["chemical", "fertilizer", "agrochemical", "petrochemical"],
 };
 
 const marketSignalCache = new Map<string, { signals: Record<string, MarketThemeSignal>; cachedAtMs: number }>();

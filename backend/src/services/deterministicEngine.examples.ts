@@ -46,10 +46,10 @@ async function runExamples() {
   const finalScore = calculateFinalScore(stock, theme);
   const ranked = await rankStocksByTheme([theme], [stock]);
 
-  assert.equal(themeRel.toFixed(6), "0.560000");
-  assert.equal(finalScore.toFixed(6), "0.543125");
+  assert.equal(themeRel.toFixed(6), "0.626000");
+  assert.equal(finalScore.toFixed(6), "0.788550");
   assert.equal(ranked[0].topStocks[0].name, "NVDA");
-  assert.equal(ranked[0].topStocks[0].score.toFixed(6), "0.543125");
+  assert.equal(ranked[0].topStocks[0].score.toFixed(6), "0.788550");
 
   return { themeRel, finalScore, ranked };
 }

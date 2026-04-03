@@ -24,7 +24,9 @@ export function normalizePercentLike(value: number): number {
 }
 
 export function scoreRevenueGrowth(value: number): number {
-  const v = normalize01(normalizePercentLike(value));
+  const raw = normalizePercentLike(value);
+  if (!Number.isFinite(raw) || raw < 0) return 0;
+  const v = normalize01(raw);
   if (v >= RULES.revenueGrowth.excellent) return 1;
   if (v >= RULES.revenueGrowth.good) return 0.7;
   if (v >= RULES.revenueGrowth.bad) return 0.4;
@@ -32,7 +34,9 @@ export function scoreRevenueGrowth(value: number): number {
 }
 
 export function scoreEPSGrowth(value: number): number {
-  const v = normalize01(normalizePercentLike(value));
+  const raw = normalizePercentLike(value);
+  if (!Number.isFinite(raw) || raw < 0) return 0;
+  const v = normalize01(raw);
   if (v >= RULES.epsGrowth.excellent) return 1;
   if (v >= RULES.epsGrowth.good) return 0.7;
   if (v > RULES.epsGrowth.bad) return 0.4;
@@ -85,8 +89,17 @@ export function scorePBVRelative(pbv: number, industryPbv: number): number {
   return 0.2;
 }
 
+/**
+ * Ownership is usually a fraction (0–1) or percent (1–100). Screener exports often use large
+ * activity/delivery figures; `normalize01` would clamp any value &gt; 100 to 1.0 and wipe out spread.
+ */
 export function scoreInstitutionalActivity(value: number): number {
-  return normalize01(normalizePercentLike(value));
+  if (!Number.isFinite(value) || value < 0) return 0;
+  if (value <= 1) return Math.max(0, Math.min(1, value));
+  if (value <= 100) return Math.max(0, Math.min(1, value / 100));
+  const cap = 5_000_000;
+  const x = Math.min(value, 1e12);
+  return Math.max(0, Math.min(1, Math.log10(1 + x) / Math.log10(1 + cap)));
 }
 
 export function scorePromoterHolding(value: number): number {

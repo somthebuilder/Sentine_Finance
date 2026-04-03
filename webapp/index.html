@@ -9,7 +9,7 @@
   <body>
     <header>
       <div class="headerRow">
-        <img class="logo" src="assets/logo.svg" alt="Sentinel logo" />
+        <img class="logo" src="assets/logo.svg?v=20260403-robot" alt="Sentinel logo" />
         <div class="brandText">
           <div class="title">Sentinel</div>
           <div class="subtitle">Deterministic themes & stock scoring (India-focused)</div>
@@ -33,13 +33,7 @@
         </section>
 
         <section>
-          <h2>Recommendations</h2>
-          <div id="recsStatus" class="status">Loading recommendations...</div>
-          <div id="recsList" class="cards"></div>
-        </section>
-
-        <section>
-          <h2>Add stocks</h2>
+          <h2>Analyze stocks</h2>
           <div class="hint">Paste JSON, CSV (comma), or direct Excel table paste (tab-separated). Submit to recompute rankings.</div>
           <div class="matchInfo">
             Filtering is deterministic: a theme qualifies when your stock's <b>sector/subSector</b> aligns with theme sectors and your <b>tags</b> overlap the theme keywords; and the overall theme relevance must be <b>&gt; 0.5</b>.
@@ -53,14 +47,20 @@
             <input id="stocksFile" class="fileInput" type="file" accept=".csv,.txt,.tsv" />
             <button id="loadCsvFile" class="button secondaryButton" type="button">Load CSV/TSV File</button>
           </div>
-          <button id="submitStocks" class="button" type="button">Submit</button>
+          <button id="submitStocks" class="button" type="button">Analyze stocks</button>
           <div id="stocksStatus" class="status"></div>
           <pre id="stocksDiagnostics" class="diagBox" hidden></pre>
+        </section>
+
+        <section>
+          <h2>Recommendations</h2>
+          <div id="recsStatus" class="status">Load stocks to get recommendations.</div>
+          <div id="recsList" class="cards"></div>
         </section>
       </div>
     </main>
 
-    <script src="app.js?v=20260403-1" defer></script>
+    <script src="app.js?v=20260403-2" defer></script>
   </body>
 </html>
 
