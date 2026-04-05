@@ -14,16 +14,25 @@ It answers: **“What stocks are positioned to benefit from what is happening ri
 
 ## Demo
 
-Screen recording of the app in use (macro & industry momentum, stock analysis, recommendations):
+Screenshots of the app in use (macro & industry momentum, stock analysis, recommendations):
 
 <p align="center">
-  <video src="docs/assets/Sentinel.mp4" controls playsinline width="100%" style="max-width: 960px">
-    Your browser does not support embedded video.
-    <a href="docs/assets/Sentinel.mp4">Open the demo (MP4)</a>.
-  </video>
+  <img src="1st.png" alt="Sentinel app screenshot 1" width="100%" style="max-width: 960px" />
 </p>
 
-<p align="center"><sub>File: <code>docs/assets/Sentinel.mp4</code> — same asset ships in this repo for offline viewing.</sub></p>
+<p align="center">
+  <img src="2nd.png" alt="Sentinel app screenshot 2" width="100%" style="max-width: 960px" />
+</p>
+
+<p align="center">
+  <img src="3rd.png" alt="Sentinel app screenshot 3" width="100%" style="max-width: 960px" />
+</p>
+
+<p align="center">
+  <img src="4th.png" alt="Sentinel app screenshot 4" width="100%" style="max-width: 960px" />
+</p>
+
+<p align="center"><sub>Assets: <code>1st.png</code> … <code>4th.png</code> in the repo root.</sub></p>
 
 ---
 
